@@ -1,11 +1,18 @@
 import { TAuthModalState, authModalState } from "@/atoms/authModalAtom";
-import React, { useRef, useState } from "react";
+import { auth } from "@/firebase/firebase";
+import React, { useEffect, useRef, useState } from "react";
 import { useSetRecoilState } from "recoil";
+import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
+import { useRouter } from "next/router";
 
 type Props = {};
 
 function Signup({}: Props) {
   const setAuthModalState = useSetRecoilState(authModalState);
+
+  const router = useRouter();
+  const [createUserWithEmailAndPassword, user, loading, error] =
+    useCreateUserWithEmailAndPassword(auth);
 
   //   const [inputs, setInputs] = useState({
   //     email: "",
@@ -20,15 +27,37 @@ function Signup({}: Props) {
     setAuthModalState((prev) => ({ ...prev, type }));
   };
 
-  const handleRegister = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    try {
+      const email = inputEmailRef?.current?.value;
+      const displayName = inputDisplayNameRef?.current?.value;
+      const password = inputPasswordRef?.current?.value;
 
-    console.log({
-      email: inputEmailRef?.current?.value,
-      displayName: inputDisplayNameRef?.current?.value,
-      password: inputPasswordRef?.current?.value
-    });
+      if (!email || !displayName || !password)
+        return alert("Please fill all the fields");
+
+      const newUser = await createUserWithEmailAndPassword(email, password);
+
+      if (!newUser) return;
+
+      router.push("/");
+    } catch (error: any) {
+      alert(error.message);
+    }
+
+    // console.log({
+    //   email: inputEmailRef?.current?.value,
+    //   displayName: inputDisplayNameRef?.current?.value,
+    //   password: inputPasswordRef?.current?.value
+    // });
   };
+
+  useEffect(() => {
+    if (!error) return;
+
+    alert(error.message);
+  }, [error]);
 
   return (
     <>
@@ -90,9 +119,10 @@ function Signup({}: Props) {
 
         <button
           type="submit"
-          className="w-full text-white focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center bg-brand-orange hover:bg-brand-orange-s"
+          className="w-full text-white focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center bg-brand-orange hover:bg-brand-orange-s disabled:bg-brand-orange-s"
+          disabled={loading}
         >
-          Register
+          {loading ? "Registering" : "Register"}
         </button>
         {/* <button className="flex w-full justify-end">
           <a
