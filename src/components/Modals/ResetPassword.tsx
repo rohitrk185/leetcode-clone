@@ -9,25 +9,25 @@ const ResetPassword = (props: Props) => {
   const [sendPasswordResetEmail, sending, error] =
     useSendPasswordResetEmail(auth);
 
-    const handleReset = async (e: FormEvent) {
-      e.preventDefault();
+  const handleReset = async (e: FormEvent) => {
+    e.preventDefault();
 
-      const success = await sendPasswordResetEmail(email);
-      if(success) {
-        window.alert("Sent email");
-      }
+    const success = await sendPasswordResetEmail(email);
+    if (success) {
+      window.alert("Sent email");
     }
+  };
 
-    useEffect(() => {
-      if(error) {
-        window.alert(error.message);
-      }
-    }, [error])
+  useEffect(() => {
+    if (error) {
+      window.alert(error.message);
+    }
+  }, [error]);
 
   return (
     <form
       className="space-y-6 px-6 lg:px-8 pb-4 sm:pb-6 xl:pb-8"
-        onSubmit={handleReset}
+      onSubmit={handleReset}
     >
       <h3 className="text-xl font-medium  text-white">Reset Password</h3>
       <p className="text-sm text-white ">
