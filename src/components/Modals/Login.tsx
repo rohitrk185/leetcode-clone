@@ -31,11 +31,12 @@ function Login({}: Props) {
 
       if (!email || !password) return alert("Please fill all the fields");
 
-      const newUser = signInWithEmailAndPassword(email, password);
+      const newUser = await signInWithEmailAndPassword(email, password);
       if (!newUser) return;
 
       router.push("/");
     } catch (error: any) {
+      console.error("Error in signin: ", error);
       toast.error(error.message, {
         position: "top-center",
         autoClose: 3000,
@@ -44,14 +45,14 @@ function Login({}: Props) {
     }
   };
 
-  useEffect(() => {
-    if (error)
-      toast.error(error.message, {
-        position: "top-center",
-        autoClose: 3000,
-        theme: "dark"
-      });
-  }, [error]);
+  // useEffect(() => {
+  //   if (error)
+  //     toast.error(error.message, {
+  //       position: "top-center",
+  //       autoClose: 3000,
+  //       theme: "dark"
+  //     });
+  // }, [error]);
 
   return (
     <>
