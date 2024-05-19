@@ -1,4 +1,4 @@
-import { Problem } from "@/types/problem";
+import { Problem } from "@/utils/types/problem";
 import assert from "assert";
 
 const starterCodeTwoSum = `function twoSum(nums,target){

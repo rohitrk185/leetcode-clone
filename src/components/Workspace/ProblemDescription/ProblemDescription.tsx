@@ -1,10 +1,13 @@
+import { Problem } from "@/utils/types/problem";
 import { AiFillLike, AiFillDislike } from "react-icons/ai";
 import { BsCheck2Circle } from "react-icons/bs";
 import { TiStarOutline } from "react-icons/ti";
 
-type ProblemDescriptionProps = {};
+type ProblemDescriptionProps = {
+  problem: Problem;
+};
 
-const ProblemDescription: React.FC<ProblemDescriptionProps> = () => {
+const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem }) => {
   return (
     <div className="bg-dark-layer-1">
       {/* TAB */}
@@ -24,7 +27,7 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = () => {
           <div className="w-full">
             <div className="flex space-x-4">
               <div className="flex-1 mr-2 text-lg text-white font-medium">
-                1. Two Sum
+                {problem.title}
               </div>
             </div>
             <div className="flex items-center mt-3">
@@ -51,24 +54,46 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = () => {
 
             {/* Problem Statement(paragraphs) */}
             <div className="text-white text-sm">
-              <p className="mt-3">
-                Given an array of integers <code>nums</code> and an integer{" "}
-                <code>target</code>, return{" "}
-                <em>indices of the two numbers such that they add up to</em>{" "}
-                <code>target</code>.
-              </p>
-              <p className="mt-3">
-                You may assume that each input would have{" "}
-                <strong>exactly one solution</strong>, and you may not use
-                thesame element twice.
-              </p>
-              <p className="mt-3">You can return the answer in any order.</p>
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: problem.problemStatement
+                }}
+              />
             </div>
 
             {/* Examples */}
             <div className="mt-4">
+              {problem.examples.map((example) => (
+                <div key={example.id}>
+                  <p className="font-medium text-white">Example {example.id}</p>
+                  {example.img ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={example.img} alt={problem.title} />
+                  ) : null}
+                  <div className="example-card">
+                    <pre>
+                      <strong className="text-white">Input:</strong>
+                      <span>{example.inputText}</span>
+
+                      <br />
+
+                      <strong>Output: </strong>
+                      <span>{example.outputText}</span>
+
+                      <br />
+
+                      {example.explanation ? (
+                        <>
+                          <strong>Explanation: </strong>
+                          <span>{example.explanation}</span>
+                        </>
+                      ) : null}
+                    </pre>
+                  </div>
+                </div>
+              ))}
               {/* Example 1 */}
-              <div>
+              {/* <div>
                 <p className="font-medium text-white ">Example 1: </p>
                 <div className="example-card">
                   <pre>
@@ -79,10 +104,10 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = () => {
                     we return [0, 1].
                   </pre>
                 </div>
-              </div>
+              </div> */}
 
               {/* Example 2 */}
-              <div>
+              {/* <div>
                 <p className="font-medium text-white ">Example 2: </p>
                 <div className="example-card">
                   <pre>
@@ -93,9 +118,9 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = () => {
                     we return [1, 2].
                   </pre>
                 </div>
-              </div>
+              </div> */}
               {/* Example 3 */}
-              <div>
+              {/* <div>
                 <p className="font-medium text-white ">Example 3: </p>
                 <div className="example-card">
                   <pre>
@@ -105,7 +130,7 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = () => {
                     <strong>Output:</strong> [0,1] <br />
                   </pre>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* Constraints */}
