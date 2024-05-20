@@ -31,10 +31,10 @@ function Signup({}: Props) {
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    let toastId;
     try {
-      toast.loading("Creating your account", {
-        position: "top-center",
-        toastId: "signUpLoadingToast"
+      toastId = toast.loading("Creating your account", {
+        position: "top-center"
       });
       const email = inputEmailRef?.current?.value;
       const displayName = inputDisplayNameRef?.current?.value;
@@ -63,12 +63,12 @@ function Signup({}: Props) {
       router.push("/");
       toast.loading(`Welcome ${newUser.user.displayName || displayName}!`, {
         position: "top-center",
-        toastId: "signUpLoadingToast"
+        toastId
       });
     } catch (error: any) {
       toast.error("Failed to create an Account. Please try again...", {
         position: "top-center",
-        toastId: "signUpLoadingToast"
+        toastId
       });
       alert(error.message);
     } finally {
