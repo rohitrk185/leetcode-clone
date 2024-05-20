@@ -68,7 +68,11 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem }) => {
                   <p className="font-medium text-white">Example {example.id}</p>
                   {example.img ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={example.img} alt={problem.title} />
+                    <img
+                      src={example.img}
+                      alt={problem.title}
+                      className="mt-3"
+                    />
                   ) : null}
                   <div className="example-card">
                     <pre>
@@ -134,10 +138,15 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem }) => {
             </div>
 
             {/* Constraints */}
-            <div className="my-5">
+            <div className="mb-8 pb-5">
               <div className="text-white text-sm font-medium">Constraints:</div>
               <ul className="text-white ml-5 list-disc">
-                <li className="mt-2">
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: problem.constraints
+                  }}
+                />
+                {/* <li className="mt-2">
                   <code>2 ≤ nums.length ≤ 10</code>
                 </li>
 
@@ -149,7 +158,7 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({ problem }) => {
                 </li>
                 <li className="mt-2 text-sm">
                   <strong>Only one valid answer exists.</strong>
-                </li>
+                </li> */}
               </ul>
             </div>
           </div>

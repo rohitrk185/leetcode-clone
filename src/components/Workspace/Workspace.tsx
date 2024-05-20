@@ -14,7 +14,7 @@ const Workspace = ({ problem }: Props) => {
       <ProblemDescription problem={problem} />
 
       <div className="bg-dark-fill-2">
-        <PlayGround />
+        <PlayGround problem={problem} />
       </div>
     </Split>
   );
