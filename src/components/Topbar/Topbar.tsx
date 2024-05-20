@@ -81,7 +81,7 @@ const Topbar = (props: Props) => {
             </Link>
           ) : null}
 
-          {problemPage ? <Timer /> : null}
+          {user && problemPage ? <Timer /> : null}
 
           {user ? (
             <>

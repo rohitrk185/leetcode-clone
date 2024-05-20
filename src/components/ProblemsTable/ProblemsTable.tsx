@@ -1,17 +1,25 @@
-import React, { useEffect, useState } from "react";
-import { problems } from "@/mockProblems/problems";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Problem } from "@/mockProblems/problems";
 import { BsCheckCircle } from "react-icons/bs";
 import { AiFillYoutube } from "react-icons/ai";
 import { IoClose } from "react-icons/io5";
 import Link from "next/link";
 import YouTube from "react-youtube";
-type Props = {};
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { firestore } from "@/firebase/firebase";
+import { DBProblem } from "@/utils/types/problem";
 
-const ProblemsTable = (props: Props) => {
+type Props = {
+  setLoadingProblems: Dispatch<SetStateAction<boolean>>;
+};
+
+const ProblemsTable = ({ setLoadingProblems }: Props) => {
   const [youtubePlayer, setYoutubePlayer] = useState({
     isOpen: false,
     videoId: ""
   });
+
+  const problems = useGetProblems(setLoadingProblems);
 
   const handleYtPlayer = (open: boolean, ytVideoId?: string) => {
     if (typeof ytVideoId === "undefined") return;
@@ -37,7 +45,7 @@ const ProblemsTable = (props: Props) => {
   return (
     <>
       <tbody className="text-white">
-        {problems.map((problem, index) => {
+        {problems.map((problem: DBProblem, index: number) => {
           const difficultyColor =
             problem.difficulty.toLowerCase() === "easy"
               ? "text-dark-green-s"
@@ -69,11 +77,11 @@ const ProblemsTable = (props: Props) => {
               <td className="px-6 py-4">{problem.category}</td>
 
               <td className="px-6 py-4">
-                {problem.videoId ? (
+                {problem.videoID ? (
                   <AiFillYoutube
                     fontSize={25}
                     className="cursor-pointer hover:text-red-600"
-                    onClick={() => handleYtPlayer(true, problem.videoId)}
+                    onClick={() => handleYtPlayer(true, problem.videoID)}
                   />
                 ) : (
                   <p className="text-gray-400">Coming soon...</p>
@@ -110,3 +118,27 @@ const ProblemsTable = (props: Props) => {
 };
 
 export default ProblemsTable;
+
+function useGetProblems(setLoadingProblems: Dispatch<SetStateAction<boolean>>) {
+  const [problems, setProblems] = useState<DBProblem[]>([]);
+
+  useEffect(() => {
+    const getProblems = async () => {
+      setLoadingProblems(true);
+
+      const q = query(collection(firestore, `Problems`), orderBy("order"));
+      const querySnapshot = await getDocs(q);
+
+      const problemsArray = querySnapshot.docs.map((doc) => {
+        return doc.data() as DBProblem;
+      });
+      setProblems(problemsArray);
+      setLoadingProblems(false);
+    };
+
+    getProblems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return problems;
+}

@@ -1,9 +1,11 @@
 import { TAuthModalState, authModalState } from "@/atoms/authModalAtom";
-import { auth } from "@/firebase/firebase";
+import { auth, firestore } from "@/firebase/firebase";
 import React, { useEffect, useRef, useState } from "react";
 import { useSetRecoilState } from "recoil";
 import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
 import { useRouter } from "next/router";
+import { doc, setDoc, Timestamp } from "firebase/firestore";
+import { toast } from "react-toastify";
 
 type Props = {};
 
@@ -30,6 +32,10 @@ function Signup({}: Props) {
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
+      toast.loading("Creating your account", {
+        position: "top-center",
+        toastId: "signUpLoadingToast"
+      });
       const email = inputEmailRef?.current?.value;
       const displayName = inputDisplayNameRef?.current?.value;
       const password = inputPasswordRef?.current?.value;
@@ -41,9 +47,32 @@ function Signup({}: Props) {
 
       if (!newUser) return;
 
+      // Create new user in firestore
+      await setDoc(doc(firestore, `Users/${newUser.user.uid}`), {
+        uid: newUser.user.uid,
+        email: newUser.user.email || email,
+        displayName: newUser.user.displayName || displayName,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+        likedProblems: [],
+        dislikedProblems: [],
+        solvedProblems: [],
+        starredProblems: []
+      });
+
       router.push("/");
+      toast.loading(`Welcome ${newUser.user.displayName || displayName}!`, {
+        position: "top-center",
+        toastId: "signUpLoadingToast"
+      });
     } catch (error: any) {
+      toast.error("Failed to create an Account. Please try again...", {
+        position: "top-center",
+        toastId: "signUpLoadingToast"
+      });
       alert(error.message);
+    } finally {
+      toast.dismiss("signUpLoadingToast");
     }
 
     // console.log({
