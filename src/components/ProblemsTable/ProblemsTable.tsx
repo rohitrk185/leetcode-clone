@@ -11,15 +11,16 @@ import { DBProblem } from "@/utils/types/problem";
 
 type Props = {
   setLoadingProblems: Dispatch<SetStateAction<boolean>>;
+  setDBProblems: Dispatch<SetStateAction<Array<any>>>;
 };
 
-const ProblemsTable = ({ setLoadingProblems }: Props) => {
+const ProblemsTable = ({ setLoadingProblems, setDBProblems }: Props) => {
   const [youtubePlayer, setYoutubePlayer] = useState({
     isOpen: false,
     videoId: ""
   });
 
-  const problems = useGetProblems(setLoadingProblems);
+  const problems = useGetProblems(setLoadingProblems, setDBProblems);
 
   const handleYtPlayer = (open: boolean, ytVideoId?: string) => {
     if (typeof ytVideoId === "undefined") return;
@@ -119,7 +120,10 @@ const ProblemsTable = ({ setLoadingProblems }: Props) => {
 
 export default ProblemsTable;
 
-function useGetProblems(setLoadingProblems: Dispatch<SetStateAction<boolean>>) {
+function useGetProblems(
+  setLoadingProblems: Dispatch<SetStateAction<boolean>>,
+  setDBProblems: Dispatch<SetStateAction<Array<any>>>
+) {
   const [problems, setProblems] = useState<DBProblem[]>([]);
 
   useEffect(() => {
@@ -133,6 +137,7 @@ function useGetProblems(setLoadingProblems: Dispatch<SetStateAction<boolean>>) {
         return doc.data() as DBProblem;
       });
       setProblems(problemsArray);
+      setDBProblems(problemsArray);
       setLoadingProblems(false);
     };
 

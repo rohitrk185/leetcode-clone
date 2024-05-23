@@ -1,11 +1,13 @@
 import ProblemsTable from "@/components/ProblemsTable/ProblemsTable";
 import Topbar from "@/components/Topbar/Topbar";
 import { firestore } from "@/firebase/firebase";
+import { DBProblem } from "@/utils/types/problem";
 import { doc, setDoc } from "firebase/firestore";
 import { useRef, useState } from "react";
 
 export default function Home() {
   const formRef = useRef(null);
+  const [DBProblems, setDBProblems] = useState<DBProblem[]>([]);
   const [loadingProblems, setLoadingProblems] = useState(true);
 
   const onSubmit = async (event: any) => {
@@ -34,7 +36,7 @@ export default function Home() {
   return (
     <>
       <main className="bg-dark-layer-2 min-h-screen">
-        <Topbar />
+        <Topbar DBProblems={DBProblems} />
 
         <h1 className="text-2xl text-center text-gray-700 dark:text-gray-400 font-medium uppercase mt-10 mb-5">
           &ldquo; QUALITY OVER QUANTITY &rdquo; 👇
@@ -73,7 +75,10 @@ export default function Home() {
               </thead>
             ) : null}
 
-            <ProblemsTable setLoadingProblems={setLoadingProblems} />
+            <ProblemsTable
+              setLoadingProblems={setLoadingProblems}
+              setDBProblems={setDBProblems}
+            />
           </table>
         </div>
 
