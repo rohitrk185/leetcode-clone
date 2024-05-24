@@ -1,6 +1,7 @@
 import ProblemsTable from "@/components/ProblemsTable/ProblemsTable";
 import Topbar from "@/components/Topbar/Topbar";
 import { firestore } from "@/firebase/firebase";
+import { useHasMounted } from "@/hooks/useHasMounted";
 import { DBProblem } from "@/utils/types/problem";
 import { doc, setDoc } from "firebase/firestore";
 import { useRef, useState } from "react";
@@ -9,6 +10,12 @@ export default function Home() {
   const formRef = useRef(null);
   const [DBProblems, setDBProblems] = useState<DBProblem[]>([]);
   const [loadingProblems, setLoadingProblems] = useState(true);
+
+  const hasMounted = useHasMounted();
+
+  if (!hasMounted) {
+    return null;
+  }
 
   const onSubmit = async (event: any) => {
     event.preventDefault();
