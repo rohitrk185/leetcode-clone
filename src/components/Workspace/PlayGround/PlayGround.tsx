@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import PreferenceNav from "./PreferenceNav/PreferenceNav";
 import Split from "react-split";
 import CodeMirror from "@uiw/react-codemirror";
@@ -6,17 +6,122 @@ import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { javascript } from "@codemirror/lang-javascript";
 import EditorFooter from "./EditorFooter";
 import { Problem } from "@/utils/types/problem";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth, firestore } from "@/firebase/firebase";
+import { toast } from "react-toastify";
+import { problems } from "@/utils/problems";
+import { useRouter } from "next/router";
+import { arrayUnion, doc, updateDoc } from "firebase/firestore";
+
+export interface ISettings {
+  fontSize: string;
+  settingsModalIsOpen: boolean;
+  dropdownIsOpen: boolean;
+}
 
 type Props = {
   problem: Problem;
+  setSuccess: Dispatch<SetStateAction<boolean>>;
+  setSolved: Dispatch<SetStateAction<boolean>>;
 };
 
-const PlayGround = ({ problem }: Props) => {
+const PlayGround = ({ problem, setSuccess, setSolved }: Props) => {
+  const router = useRouter();
+  const [user] = useAuthState(auth);
+
   const [activeTestCaseId, setActiveTestCaseId] = useState<number>(0);
+  const [userCode, setUserCode] = useState<string>(problem.starterCode);
+  const [settings, setSettings] = useState<ISettings>({
+    fontSize: "16px",
+    settingsModalIsOpen: false,
+    dropdownIsOpen: false
+  });
+
+  const { pid } = router.query;
+
+  useEffect(() => {
+    const localStorageCode = localStorage.getItem(`code-${pid}`);
+    const savedCode = localStorageCode ? JSON.parse(localStorageCode) : null;
+    if (savedCode && user && user?.uid === savedCode.user) {
+      setUserCode((prev) => {
+        return savedCode ? savedCode.code : prev;
+      });
+    } else {
+      setUserCode(problem.starterCode);
+    }
+  }, [pid, problem.starterCode, user]);
+
+  const handleSubmit = async () => {
+    if (!user) {
+      toast.error("Please login to submit your code", {
+        position: "top-center",
+        autoClose: 3000,
+        theme: "dark"
+      });
+      return;
+    }
+
+    try {
+      const slicedUserCode = userCode.slice(
+        userCode.indexOf(problem.starterFunctionName)
+      );
+      const cb = new Function(`return ${slicedUserCode}`)();
+      const handlerFunction = problems[pid as string].handlerFunction;
+      if (typeof handlerFunction !== "function") {
+        return;
+      }
+      const success = handlerFunction(cb);
+      if (success) {
+        toast.success("Congrats! All tests passed!", {
+          position: "top-center",
+          autoClose: 4000,
+          theme: "dark"
+        });
+        setSuccess(true);
+        setSolved(true);
+        setTimeout(() => {
+          setSuccess(false);
+        }, 4000);
+
+        // Save to DB
+        const userRef = doc(firestore, "Users", user.uid);
+        await updateDoc(userRef, {
+          solvedProblems: arrayUnion(pid)
+        });
+      }
+    } catch (error: any) {
+      if (
+        error?.message?.startsWith(
+          `AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:`
+        )
+      ) {
+        toast.error("Oops! One or more test cases failed", {
+          position: "top-center",
+          autoClose: 4000,
+          theme: "dark"
+        });
+      } else {
+        toast.error(error.message, {
+          position: "top-center",
+          autoClose: 4000,
+          theme: "dark"
+        });
+      }
+    }
+  };
+
+  const onCodeMirrorChange = async (value: string) => {
+    setUserCode(value);
+    const obj = {
+      user: user?.uid,
+      code: userCode
+    };
+    localStorage.setItem(`code-${pid}`, JSON.stringify(obj));
+  };
 
   return (
     <div className="flex flex-col bg-dark-layer-1 relative overflow-x-hidden">
-      <PreferenceNav />
+      <PreferenceNav settings={settings} setSettings={setSettings} />
 
       <Split
         className="h-[calc(100vh-94px)]"
@@ -26,10 +131,11 @@ const PlayGround = ({ problem }: Props) => {
       >
         <div className="w-full overflow-auto">
           <CodeMirror
-            value={problem.starterCode}
+            value={userCode}
             theme={vscodeDark}
+            onChange={onCodeMirrorChange}
             extensions={[javascript()]}
-            style={{ fontSize: 16 }}
+            style={{ fontSize: settings.fontSize }}
           />
         </div>
 
@@ -109,7 +215,7 @@ const PlayGround = ({ problem }: Props) => {
         </div>
       </Split>
 
-      <EditorFooter />
+      <EditorFooter handleSubmit={handleSubmit} />
     </div>
   );
 };

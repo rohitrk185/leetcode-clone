@@ -1,15 +1,23 @@
 import Topbar from "@/components/Topbar/Topbar";
 import Workspace from "@/components/Workspace/Workspace";
+import { firestore } from "@/firebase/firebase";
+import { useHasMounted } from "@/hooks/useHasMounted";
 import { problems } from "@/utils/problems";
-import { Problem } from "@/utils/types/problem";
+import { DBProblem, Problem } from "@/utils/types/problem";
+import { collection, getDocs, query } from "firebase/firestore";
 import React from "react";
 
 type Props = {
   problem: Problem;
+  // DBProblems: DBProblem[];
 };
 
 const ProblemPage = ({ problem }: Props) => {
-  console.log("problem: ", problem);
+  const hasMounted = useHasMounted();
+
+  if (!hasMounted) {
+    return null;
+  }
   return (
     <div>
       <Topbar problemPage={true} />
@@ -44,6 +52,9 @@ export async function getStaticProps({
 }) {
   const { pid } = params;
   const problem = problems[pid];
+  // const problemsCollectionQuery = query(collection(firestore, "Problems"));
+  // const problemsSnap = await getDocs(problemsCollectionQuery);
+  // const DBProblems = problemsSnap.docs.map((d) => d.data() as DBProblem);
   if (!problem) {
     return {
       notFound: true
@@ -55,6 +66,7 @@ export async function getStaticProps({
   return {
     props: {
       problem
+      // DBProblems
     }
   };
 }

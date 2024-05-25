@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Split from "react-split";
 import ProblemDescription from "./ProblemDescription/ProblemDescription";
 import PlayGround from "./PlayGround/PlayGround";
@@ -13,13 +13,18 @@ type Props = {
 const Workspace = ({ problem }: Props) => {
   const [success, setSuccess] = useState(false);
   const { width, height } = useWindowSize();
+  const [solved, setSolved] = useState(false);
 
   return (
     <Split className="split" minSize={0}>
-      <ProblemDescription problem={problem} />
+      <ProblemDescription problem={problem} _solved={solved} />
 
       <div className="bg-dark-fill-2">
-        <PlayGround problem={problem} />
+        <PlayGround
+          problem={problem}
+          setSuccess={setSuccess}
+          setSolved={setSolved}
+        />
         {success ? (
           <Confetti
             gravity={0.3}
