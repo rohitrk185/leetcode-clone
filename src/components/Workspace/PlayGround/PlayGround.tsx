@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import { problems } from "@/utils/problems";
 import { useRouter } from "next/router";
 import { arrayUnion, doc, updateDoc } from "firebase/firestore";
+import useLocalStorage from "@/hooks/useLocalStorage";
 
 export interface ISettings {
   fontSize: string;
@@ -31,8 +32,9 @@ const PlayGround = ({ problem, setSuccess, setSolved }: Props) => {
 
   const [activeTestCaseId, setActiveTestCaseId] = useState<number>(0);
   const [userCode, setUserCode] = useState<string>(problem.starterCode);
+  const [fontSize, setFontSize] = useLocalStorage("lcc-fontSize", "16px");
   const [settings, setSettings] = useState<ISettings>({
-    fontSize: "16px",
+    fontSize: fontSize || "16px",
     settingsModalIsOpen: false,
     dropdownIsOpen: false
   });

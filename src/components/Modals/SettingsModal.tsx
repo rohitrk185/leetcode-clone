@@ -77,7 +77,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                       className="flex cursor-pointer items-center rounded px-3 py-1.5 text-left focus:outline-none whitespace-nowrap bg bg-dark-fill-3 hover:bg-dark-fill-2 active:bg-dark-fill-3 w-full justify-between"
                       type="button"
                     >
-                      {fontSize}
+                      {settings.fontSize || fontSize}
                       {settings.dropdownIsOpen ? (
                         <BsChevronUp />
                       ) : (
@@ -102,8 +102,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                               setFontSize(fontSize);
                               setSettings({
                                 ...settings,
-                                fontSize: fontSize
-                                // dropdownIsOpen: false
+                                fontSize: fontSize,
+                                dropdownIsOpen: false
                               });
                             }}
                           />
